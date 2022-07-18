@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 interface DegreeType {
@@ -33,8 +33,8 @@ const Divver = styled.div`
 
 const Circle1 = styled.div`
   position: relative;
-  width: 200px;
-  height: 200px;
+  width: 256px;
+  height: 256px;
   border: solid 4px #000;
   border-radius: 150px;
   
@@ -46,14 +46,11 @@ const Circle1 = styled.div`
 
 interface circleProps {
   pos: DegreeType
-  motion: MotionType
 }
-const Circle2 = styled.div<circleProps>`
-  margin-top: ${props => props.pos.beta * -5}px;
-  margin-left: ${props => props.pos.gamma * -5}px;
+const Circle2 = styled.div`
+  position: absolute;
   width: 64px;
   height: 64px;
-  transform: scale(${props => 1 + ((props.motion.z - 9.8) / 2 - Math.abs(props.motion.x)) / 10}, ${props => 1 + ((props.motion.z - 9.8) / 2 - Math.abs(props.motion.y)) / 10});
   background-color: #000;
   border-radius: 100px;
 `
@@ -63,14 +60,8 @@ const round = (num: number, digits: number) => {
 } 
 
 function App() {
-  const [ debug, setDebug ] = useState('')
   const [degree, setDegree] = useState<DegreeType>({alpha: 0, beta: 0, gamma: 0})
-
-  const [motion, setMotion] = useState({
-    x: 0,
-    y: 0,
-    z: 0
-  })
+  const circle1Ref = useRef<HTMLDivElement>(null)
 
   // 각도
   useEffect(() => {
@@ -88,37 +79,18 @@ function App() {
     }
   }, [])
 
-  // 가속도
-  useEffect(() => {
-    const callback = (e: DeviceMotionEvent) => {
-      setMotion({
-        x: round(e.accelerationIncludingGravity?.x || 0, 1),
-        y: round(e.accelerationIncludingGravity?.y || 0, 1),
-        z: round(e.accelerationIncludingGravity?.z || 0, 1)
-      })
-    }
-
-    window.addEventListener('devicemotion', callback)
-    return () => {
-      window.removeEventListener('devicemotion', callback)
-    }
-  }, [])
-
   return (
     <Divver className="App">
       <Debug>
         {JSON.stringify(degree, null, 2)}
         <br />
-        {JSON.stringify(motion, null, 2)}
-        <br />
-        { Math.round((1 + ((motion.z - 9.8) / 2 - Math.abs(motion.x)) / 10) * 100) / 100 }
-        <br />
-        { Math.round((1 + ((motion.z - 9.8) / 2 - Math.abs(motion.y)) / 10) * 100) / 100 }
-        <br />
         <p onClick={() => {window.location.reload()}}>[ Reload ]</p>
       </Debug>
-      <Circle1>
-        <Circle2 pos={degree} motion={motion} />
+      <Circle1 ref={circle1Ref}>
+        <Circle2 style={{
+          top: 128 - 32 + degree.beta * -5,
+          left: 128 - 32 + degree.gamma * -5
+        }} />
       </Circle1>
     </Divver>
   );
