@@ -91,6 +91,10 @@ function DrawCanvas() {
     }, [worker])
 
     useEffect(() => {
+        worker.requestWorker('resize', {width: window.innerWidth, height: window.innerHeight})
+    }, [worker])
+
+    useEffect(() => {
         const resize = () => {
             if (canvasRef.current) {
                 canvasRef.current.width=window.innerWidth
@@ -98,7 +102,6 @@ function DrawCanvas() {
                 worker.requestWorker('resize', {width: window.innerWidth, height: window.innerHeight})
             }
         }
-
         resize()
         window.addEventListener('resize', resize)
         return () => {
