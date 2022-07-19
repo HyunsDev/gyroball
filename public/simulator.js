@@ -146,6 +146,7 @@ self.addEventListener('message', event => {
 
         case 'resize':
             data.screen = event.data.data
+            console.log(data.screen)
             break
 
         default:
